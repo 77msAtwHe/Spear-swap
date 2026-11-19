@@ -1,0 +1,25 @@
+name: Build 1.21.1 Mod
+on: [workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Generate 1.21.1 Template & Build
+        run: |
+          curl -X POST https://fabricmc.net \
+            -H "Content-Type: application/json" \
+            -d '{"modid":"attributeswap","name":"Attribute Swap","package":"com.attributeswap","mcVersion":"1.21.1","yarnVersion":"1.21.1+build.3","loaderVersion":"0.16.5","apiVersion":"0.104.0+1.21.1","kotlin":false,"mojmap":false,"splitSources":false,"dataGen":false}' \
+            -o template.zip
+          unzip -o template.zip
+          cp -r src/* src/ || true
+          chmod +x gradlew
+          ./gradlew build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: attributeswap-1.21.1
+          path: build/libs/*.jar
